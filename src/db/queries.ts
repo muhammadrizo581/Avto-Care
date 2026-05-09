@@ -356,3 +356,31 @@ export async function getMediaByIds(ids: number[]): Promise<Media[]> {
     );
     return result.rows;
 }
+// === CONTACTS (aloqa adminlar) ===
+
+export interface Contact {
+    id: number;
+    name: string;
+    username: string;
+    created_at: Date;
+}
+
+export async function addContact(name: string, username: string): Promise<Contact> {
+    const cleanUsername = username.replace('@', '').trim();
+    const result = await pool.query<Contact>(
+        'INSERT INTO contacts (name, username) VALUES ($1, $2) RETURNING *',
+        [name, cleanUsername]
+    );
+    return result.rows[0];
+}
+
+export async function getAllContacts(): Promise<Contact[]> {
+    const result = await pool.query<Contact>(
+        'SELECT * FROM contacts ORDER BY created_at ASC'
+    );
+    return result.rows;
+}
+
+export async function deleteContact(id: number): Promise<void> {
+    await pool.query('DELETE FROM contacts WHERE id = $1', [id]);
+}
